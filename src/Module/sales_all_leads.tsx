@@ -4,13 +4,34 @@ import SidebarItem from '../components/SidebarItem';
 const SalesAllLeads: React.FC = () => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
-  const leadsData = [
-    { id: 1, company: 'HPCL Goa', contactName: 'Prasadi', email: 'Prasadi@hpcl-goa.com', linkedin: 'Prasadi', website: 'Hplite', city: '-', state: '-', country: '-', status: 'New', source: 'Website', addedOn: '24 Mar 2026' },
-    { id: 2, company: 'IOCL', contactName: 'Richardson', email: 'Richardson@ibm.com', linkedin: 'Richardson', website: 'Nikon', city: '-', state: '-', country: '-', status: 'Contacted', source: 'Referral', addedOn: '23 Mar 2026' },
-    { id: 3, company: 'IBM1', contactName: 'Shanu', email: 'Shanu1@ibm.com', linkedin: 'Shanu', website: 'IBM', city: '-', state: '-', country: '-', status: 'New', source: 'Organic', addedOn: '20 Mar 2026' },
-    { id: 4, company: 'Google1', contactName: 'Ravish', email: 'ravish@goggle1.com', linkedin: 'Ravish', website: 'Cloud', city: '-', state: '-', country: '-', status: 'Qualified', source: 'Event', addedOn: '18 Mar 2026' },
-  ];
+  const [leadsData, setLeadsData] = useState([
+    { 
+      id: 1, company: 'Mirrat', contactName: 'Meghna', email: 'meghna@mirrat.com', linkedin: 'in/meghna', website: 'mirrat.com', 
+      country: 'India', state: 'MH', city: 'Pune', industry: 'IT', leadOwner: 'Vipul', productName: 'enttevo', 
+      contractStage: 'Discovery', proposedARR: '$12,000', contractARR: '-', source: 'Website', icp: true, 
+      status: 'New', label: 'Hot', createdBy: 'System', updatedBy: 'Vipul', addedOn: '24 Mar 2026', updatedAt: '24 Mar 2026' 
+    },
+    { 
+      id: 2, company: 'Zapp.Org', contactName: 'Ritesh', email: 'ritesh@zapp.org', linkedin: 'in/ritesh', website: 'zapp.org', 
+      country: 'India', state: 'MH', city: 'Mumbai', industry: 'Software', leadOwner: 'Rahul', productName: 'enttevo', 
+      contractStage: 'Proposal', proposedARR: '$25,000', contractARR: '-', source: 'Referral', icp: false, 
+      status: 'Contacted', label: 'Warm', createdBy: 'Rahul', updatedBy: 'Rahul', addedOn: '20 Mar 2026', updatedAt: '22 Mar 2026' 
+    },
+    { 
+      id: 3, company: 'Smartlearn', contactName: 'Amar', email: 'amar@smartlearn.com', linkedin: 'in/amar', website: 'smartlearn.com', 
+      country: 'USA', state: 'CA', city: 'San Jose', industry: 'Tech', leadOwner: 'Vipul', productName: 'i-managem', 
+      contractStage: 'Closed Won', proposedARR: '$50,000', contractARR: '$48,000', source: 'Event', icp: true, 
+      status: 'Qualified', label: 'Hot', createdBy: 'Marketing', updatedBy: 'Vipul', addedOn: '15 Mar 2026', updatedAt: '23 Mar 2026' 
+    },
+    { 
+      id: 4, company: 'Google Cloud', contactName: 'Ravish', email: 'ravish@google.com', linkedin: 'in/ravish', website: 'cloud.google.com', 
+      country: 'USA', state: 'CA', city: 'Mountain View', industry: 'Enterprise', leadOwner: 'Vipul', productName: 'enttevo', 
+      contractStage: 'Negotiation', proposedARR: '$120,000', contractARR: '-', source: 'Direct', icp: true, 
+      status: 'Contacted', label: 'Hot', createdBy: 'Vipul', updatedBy: 'Vipul', addedOn: '10 Mar 2026', updatedAt: '25 Mar 2026' 
+    },
+  ]);
 
   const filteredData = leadsData.filter(lead =>
     lead.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -213,7 +234,7 @@ const SalesAllLeads: React.FC = () => {
               </div>
             </div>
 
-            <div className="overflow-x-auto relative min-h-[300px] custom-scrollbar">
+            <div className="overflow-x-auto relative min-h-[200px] custom-scrollbar">
               <table className="w-full text-left border-collapse min-w-[1500px]">
                 <thead>
                   <tr className="bg-white border-b border-outline/5">
@@ -267,7 +288,7 @@ const SalesAllLeads: React.FC = () => {
                           <span className="text-[0.8rem] text-[#006495] hover:underline">{lead.website}</span>
                         </td>
                         <td className="px-6 py-0">
-                          <span className="text-[0.8rem] text-on-surface-variant/70">-</span>
+                          <span className="text-[0.8rem] text-on-surface-variant/70">{lead.country}</span>
                         </td>
                         <td className="px-6 py-0">
                           <span className="text-[0.8rem] text-on-surface-variant/70">{lead.state}</span>
@@ -276,51 +297,130 @@ const SalesAllLeads: React.FC = () => {
                           <span className="text-[0.8rem] text-on-surface-variant/70">{lead.city}</span>
                         </td>
                         <td className="px-6 py-0">
-                          <span className="text-[0.8rem] text-on-surface-variant/70">-</span>
+                          <div className="relative">
+                            <div onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === `ind_${lead.id}` ? null : `ind_${lead.id}`); }} className="flex items-center justify-between gap-1 w-full px-2 py-1 text-[0.75rem] font-medium border border-outline/10 rounded-sm hover:border-[#FF8000]/50 transition-colors bg-white cursor-pointer group min-w-[100px]">
+                              {lead.industry}
+                              <span className="material-symbols-outlined !text-[14px] text-on-surface-variant/50 group-hover:text-[#FF8000]">expand_more</span>
+                            </div>
+                            {openDropdown === `ind_${lead.id}` && (
+                              <>
+                                <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setOpenDropdown(null); }} />
+                                <div className="absolute top-full mt-1 left-0 min-w-full bg-white border border-outline/10 shadow-lg rounded-sm py-1 z-50 animate-in fade-in duration-100">
+                                  {['IT', 'Software', 'Enterprise', 'Finance', 'Healthcare'].map(opt => (
+                                    <div key={opt} onClick={(e) => { e.stopPropagation(); setLeadsData(leadsData.map(l => l.id === lead.id ? { ...l, industry: opt } : l)); setOpenDropdown(null); }} className="px-3 py-1.5 text-[0.75rem] font-medium text-on-surface hover:bg-[#FF8000]/10 hover:text-[#FF8000] cursor-pointer transition-colors">
+                                      {opt}
+                                    </div>
+                                  ))}
+                                </div>
+                              </>
+                            )}
+                          </div>
                         </td>
                         <td className="px-6 py-0">
-                          <span className="text-[0.8rem] text-on-surface-variant/70">-</span>
+                          <span className="text-[0.8rem] text-on-surface font-medium">{lead.leadOwner}</span>
                         </td>
                         <td className="px-6 py-0">
-                          <span className="text-[0.8rem] text-on-surface-variant/70">-</span>
+                          <span className="text-[0.8rem] font-semibold text-on-surface">{lead.productName}</span>
                         </td>
                         <td className="px-6 py-0">
-                          <span className="text-[0.8rem] text-on-surface-variant/70">-</span>
+                          <div className="relative">
+                            <div onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === `stage_${lead.id}` ? null : `stage_${lead.id}`); }} className="flex items-center justify-between gap-1 w-full px-2 py-1 text-[0.75rem] font-medium border border-outline/10 rounded-sm hover:border-[#FF8000]/50 transition-colors bg-white cursor-pointer group min-w-[120px]">
+                              {lead.contractStage}
+                              <span className="material-symbols-outlined !text-[14px] text-on-surface-variant/50 group-hover:text-[#FF8000]">expand_more</span>
+                            </div>
+                            {openDropdown === `stage_${lead.id}` && (
+                              <>
+                                <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setOpenDropdown(null); }} />
+                                <div className="absolute top-full mt-1 left-0 min-w-full bg-white border border-outline/10 shadow-lg rounded-sm py-1 z-50 animate-in fade-in duration-100">
+                                  {['Discovery', 'Demo', 'Proposal', 'Negotiation', 'Closed Won', 'Closed Lost'].map(opt => (
+                                    <div key={opt} onClick={(e) => { e.stopPropagation(); setLeadsData(leadsData.map(l => l.id === lead.id ? { ...l, contractStage: opt } : l)); setOpenDropdown(null); }} className="px-3 py-1.5 text-[0.75rem] font-medium text-on-surface hover:bg-[#FF8000]/10 hover:text-[#FF8000] cursor-pointer transition-colors">
+                                      {opt}
+                                    </div>
+                                  ))}
+                                </div>
+                              </>
+                            )}
+                          </div>
                         </td>
                         <td className="px-6 py-0">
-                          <span className="text-[0.8rem] text-on-surface-variant/70">-</span>
+                          <span className="text-[0.8rem] text-emerald-600 font-bold">{lead.proposedARR}</span>
                         </td>
                         <td className="px-6 py-0">
-                          <span className="text-[0.8rem] text-on-surface-variant/70">-</span>
+                          <span className="text-[0.8rem] text-emerald-600 font-bold">{lead.contractARR}</span>
                         </td>
                         <td className="px-6 py-0">
                           <span className="text-[0.75rem] text-on-surface-variant font-medium">{lead.source}</span>
                         </td>
                         <td className="px-6 py-0">
-                          <span className="text-[0.8rem] text-on-surface-variant/70">-</span>
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setLeadsData(leadsData.map(l => l.id === lead.id ? { ...l, icp: !l.icp } : l));
+                            }}
+                            className={`w-8 h-4 rounded-full relative transition-colors ${lead.icp ? 'bg-[#FF8000]' : 'bg-outline-variant/30'}`}
+                          >
+                            <div className={`w-3 h-3 bg-white rounded-full absolute top-0.5 transition-all ${lead.icp ? 'left-[18px]' : 'left-0.5'}`}></div>
+                          </button>
                         </td>
                         <td className="px-6 py-0">
-                          <span className={`inline-block text-center w-[110px] px-2 py-1 rounded-sm text-[0.65rem] font-bold border ${lead.status === 'New' ? 'bg-blue-50 text-blue-700 border-blue-100' :
-                            lead.status === 'Contacted' ? 'bg-amber-50 text-amber-500 border-amber-100' :
-                              'bg-emerald-50 text-emerald-700 border-emerald-100'
+                          <div className="relative inline-block w-[110px]">
+                            <div onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === `status_${lead.id}` ? null : `status_${lead.id}`); }} className={`flex items-center justify-between text-center px-2 py-1 rounded-sm text-[0.65rem] font-bold border cursor-pointer group transition-colors ${
+                              lead.status === 'New' ? 'bg-blue-50 text-blue-700 border-blue-100 hover:bg-blue-100/50' :
+                              lead.status === 'Contacted' ? 'bg-amber-50 text-amber-500 border-amber-100 hover:bg-amber-100/50' :
+                              'bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100/50'
                             }`}>
-                            {lead.status}
-                          </span>
+                              <span className="flex-1 text-center">{lead.status}</span>
+                              <span className="material-symbols-outlined !text-[14px] opacity-60 group-hover:text-[#FF8000]">expand_more</span>
+                            </div>
+                            {openDropdown === `status_${lead.id}` && (
+                              <>
+                                <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setOpenDropdown(null); }} />
+                                <div className="absolute top-full mt-1 left-0 min-w-full bg-white border border-outline/10 shadow-lg rounded-sm py-1 z-50 animate-in fade-in duration-100 text-left">
+                                  {['New', 'Contacted', 'Qualified', 'Disqualified'].map(opt => (
+                                    <div key={opt} onClick={(e) => { e.stopPropagation(); setLeadsData(leadsData.map(l => l.id === lead.id ? { ...l, status: opt } : l)); setOpenDropdown(null); }} className="px-3 py-1.5 text-[0.75rem] font-medium text-on-surface hover:bg-[#FF8000]/10 hover:text-[#FF8000] cursor-pointer transition-colors">
+                                      {opt}
+                                    </div>
+                                  ))}
+                                </div>
+                              </>
+                            )}
+                          </div>
                         </td>
                         <td className="px-6 py-0">
-                          <span className="text-[0.8rem] text-on-surface-variant/70">-</span>
+                          <div className="relative inline-block min-w-[80px]">
+                            <div onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === `label_${lead.id}` ? null : `label_${lead.id}`); }} className="flex items-center justify-between gap-1.5 w-full cursor-pointer group hover:bg-slate-50 px-1 py-0.5 rounded-sm transition-colors border border-transparent hover:border-outline/10">
+                              <div className="flex items-center gap-1.5">
+                                <div className={`w-2 h-2 rounded-full ${lead.label === 'Hot' ? 'bg-red-500' : lead.label === 'Warm' ? 'bg-orange-400' : 'bg-slate-300'}`}></div>
+                                <span className="text-[0.75rem] font-medium text-on-surface">{lead.label}</span>
+                              </div>
+                              <span className="material-symbols-outlined !text-[14px] text-on-surface-variant/50 group-hover:text-[#FF8000]">expand_more</span>
+                            </div>
+                            {openDropdown === `label_${lead.id}` && (
+                              <>
+                                <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setOpenDropdown(null); }} />
+                                <div className="absolute top-full mt-1 left-0 min-w-full bg-white border border-outline/10 shadow-lg rounded-sm py-1 z-50 animate-in fade-in duration-100 text-left">
+                                  {['Hot', 'Warm', 'Cold'].map(opt => (
+                                    <div key={opt} onClick={(e) => { e.stopPropagation(); setLeadsData(leadsData.map(l => l.id === lead.id ? { ...l, label: opt } : l)); setOpenDropdown(null); }} className="px-3 py-1.5 flex items-center gap-2 hover:bg-[#FF8000]/10 hover:text-[#FF8000] cursor-pointer transition-colors">
+                                      <div className={`w-2 h-2 rounded-full ${opt === 'Hot' ? 'bg-red-500' : opt === 'Warm' ? 'bg-orange-400' : 'bg-slate-300'}`}></div>
+                                      <span className="text-[0.75rem] font-medium text-on-surface">{opt}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </>
+                            )}
+                          </div>
                         </td>
                         <td className="px-6 py-0">
-                          <span className="text-[0.8rem] text-on-surface-variant/70">-</span>
+                          <span className="text-[0.8rem] text-on-surface-variant/70">{lead.createdBy}</span>
                         </td>
                         <td className="px-6 py-0">
-                          <span className="text-[0.8rem] text-on-surface-variant/70">-</span>
+                          <span className="text-[0.8rem] text-on-surface-variant/70">{lead.updatedBy}</span>
                         </td>
                         <td className="px-6 py-0">
                           <span className="text-[0.75rem] text-on-surface-variant/60 font-medium">{lead.addedOn}</span>
                         </td>
                         <td className="px-6 py-0">
-                          <span className="text-[0.8rem] text-on-surface-variant/70">-</span>
+                          <span className="text-[0.75rem] text-on-surface-variant/60 font-medium">{lead.updatedAt}</span>
                         </td>
 
                         {/* Clean Sticky Right Action Button */}
