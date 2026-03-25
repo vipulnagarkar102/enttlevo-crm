@@ -1,10 +1,42 @@
 import React, { useState } from 'react';
 import SidebarItem from '../components/SidebarItem';
+import ColumnSettingsOverlay from '../components/sales_dashboard/ColumnSettingsOverlay';
 
 const SalesAllLeads: React.FC = () => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+  const [isOverlayOpen, setIsOverlayOpen] = useState(false);
+  const [columns, setColumns] = useState([
+    { id: '1', label: 'Company', key: 'company', visible: true },
+    { id: '2', label: 'Contact Name', key: 'contactName', visible: true },
+    { id: '3', label: 'Email', key: 'email', visible: true },
+    { id: '4', label: 'LinkedIn', key: 'linkedin', visible: true },
+    { id: '5', label: 'Website', key: 'website', visible: true },
+    { id: '6', label: 'Country', key: 'country', visible: true },
+    { id: '7', label: 'State', key: 'state', visible: true },
+    { id: '8', label: 'City', key: 'city', visible: true },
+    { id: '9', label: 'Industry', key: 'industry', visible: true },
+    { id: '10', label: 'Lead Owner', key: 'leadOwner', visible: true },
+    { id: '11', label: 'Product Name', key: 'productName', visible: true },
+    { id: '12', label: 'Contract Stage', key: 'contractStage', visible: true },
+    { id: '13', label: 'Proposed ARR', key: 'proposedARR', visible: true },
+    { id: '14', label: 'Contract ARR', key: 'contractARR', visible: true },
+    { id: '15', label: 'Lead Source', key: 'source', visible: true },
+    { id: '16', label: 'ICP', key: 'icp', visible: true },
+    { id: '17', label: 'Status', key: 'status', visible: true },
+    { id: '18', label: 'Label', key: 'label', visible: true },
+    { id: '19', label: 'Created By', key: 'createdBy', visible: true },
+    { id: '20', label: 'Updated By', key: 'updatedBy', visible: true },
+    { id: '21', label: 'Created At', key: 'addedOn', visible: true },
+    { id: '22', label: 'Updated At', key: 'updatedAt', visible: true },
+  ]);
+
+  const handleToggle = (id: string) => setColumns(prev => prev.map(col => col.id === id ? { ...col, visible: !col.visible } : col));
+  const handleReset = () => setColumns(prev => prev.map(col => ({ ...col, visible: true })));
+  const handleSave = () => setIsOverlayOpen(false);
+  const isVisible = (key: string) => columns.find(c => c.key === key)?.visible;
 
   const [leadsData, setLeadsData] = useState([
     { 
@@ -227,7 +259,10 @@ const SalesAllLeads: React.FC = () => {
                   <span className="material-symbols-outlined !text-[16px]">filter_list</span>
                   Advanced Filters
                 </button>
-                <button className="flex items-center gap-2 px-3 py-1.5 border border-outline/10 text-[0.75rem] font-bold text-on-surface-variant hover:bg-white hover:text-[#FF8000] transition-colors rounded-sm uppercase tracking-wider group">
+                <button 
+                  onClick={() => setIsOverlayOpen(true)}
+                  className="flex items-center gap-2 px-3 py-1.5 border border-outline/10 text-[0.75rem] font-bold text-on-surface-variant hover:bg-white hover:text-[#FF8000] transition-colors rounded-sm uppercase tracking-wider group"
+                >
                   <span className="material-symbols-outlined !text-[16px] group-hover:rotate-180 transition-transform duration-500">settings</span>
                   Manage Columns
                 </button>
@@ -238,28 +273,28 @@ const SalesAllLeads: React.FC = () => {
               <table className="w-full text-left border-collapse min-w-[1500px]">
                 <thead>
                   <tr className="bg-white border-b border-outline/5">
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap sticky left-0 bg-white z-20 shadow-[2px_0_5px_rgba(0,0,0,0.05)]">Company</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Contact Name</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Email</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">LinkedIn</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Website</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Country</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">State</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">City</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Industry</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Lead Owner</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Product Name</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Contract Stage</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Proposed ARR</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Contract ARR</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Lead Source</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">ICP</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Status</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Label</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Created By</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Updated By</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Created At</th>
-                    <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Updated At</th>
+                    {isVisible('company') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap sticky left-0 bg-white z-20 shadow-[2px_0_5px_rgba(0,0,0,0.05)]">Company</th>}
+                    {isVisible('contactName') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Contact Name</th>}
+                    {isVisible('email') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Email</th>}
+                    {isVisible('linkedin') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">LinkedIn</th>}
+                    {isVisible('website') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Website</th>}
+                    {isVisible('country') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Country</th>}
+                    {isVisible('state') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">State</th>}
+                    {isVisible('city') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">City</th>}
+                    {isVisible('industry') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Industry</th>}
+                    {isVisible('leadOwner') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Lead Owner</th>}
+                    {isVisible('productName') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Product Name</th>}
+                    {isVisible('contractStage') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Contract Stage</th>}
+                    {isVisible('proposedARR') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Proposed ARR</th>}
+                    {isVisible('contractARR') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Contract ARR</th>}
+                    {isVisible('source') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Lead Source</th>}
+                    {isVisible('icp') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">ICP</th>}
+                    {isVisible('status') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Status</th>}
+                    {isVisible('label') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Label</th>}
+                    {isVisible('createdBy') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Created By</th>}
+                    {isVisible('updatedBy') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Updated By</th>}
+                    {isVisible('addedOn') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Created At</th>}
+                    {isVisible('updatedAt') && <th className="px-6 py-4 text-[0.7rem] font-bold text-on-surface-variant/40 uppercase tracking-widest whitespace-nowrap">Updated At</th>}
                     <th className="sticky right-0 w-0 p-0 z-20"></th>
                   </tr>
                 </thead>
@@ -267,36 +302,36 @@ const SalesAllLeads: React.FC = () => {
                   {filteredData.length > 0 ? (
                     filteredData.map((lead) => (
                       <tr key={lead.id} className="transition-all cursor-pointer group hover:bg-[#FF8000]/[0.04] h-[52px]">
-                        <td className="px-6 py-0 sticky left-0 bg-white group-hover:bg-[#FFF7F0] z-10 shadow-[2px_0_5px_rgba(0,0,0,0.05)] transition-colors">
+                        {isVisible('company') && <td className="px-6 py-0 sticky left-0 bg-white group-hover:bg-[#FFF7F0] z-10 shadow-[2px_0_5px_rgba(0,0,0,0.05)] transition-colors">
                           <div className="flex items-center gap-3">
                             <div className="w-6 h-6 rounded-sm bg-blue-500/10 flex items-center justify-center text-blue-600 font-bold text-[0.65rem] uppercase">
                               {lead.company.charAt(0)}
                             </div>
                             <span className="text-[0.85rem] font-semibold text-on-surface">{lead.company}</span>
                           </div>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('contactName') && <td className="px-6 py-0">
                           <span className="text-[0.85rem] font-medium text-on-surface-variant">{lead.contactName}</span>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('email') && <td className="px-6 py-0">
                           <span className="text-[0.8rem] text-[#006495] hover:underline font-medium">{lead.email}</span>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('linkedin') && <td className="px-6 py-0">
                           <span className="text-[0.8rem] text-on-surface-variant/80 font-medium tracking-tight">{lead.linkedin}</span>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('website') && <td className="px-6 py-0">
                           <span className="text-[0.8rem] text-[#006495] hover:underline">{lead.website}</span>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('country') && <td className="px-6 py-0">
                           <span className="text-[0.8rem] text-on-surface-variant/70">{lead.country}</span>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('state') && <td className="px-6 py-0">
                           <span className="text-[0.8rem] text-on-surface-variant/70">{lead.state}</span>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('city') && <td className="px-6 py-0">
                           <span className="text-[0.8rem] text-on-surface-variant/70">{lead.city}</span>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('industry') && <td className="px-6 py-0">
                           <div className="relative">
                             <div onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === `ind_${lead.id}` ? null : `ind_${lead.id}`); }} className="flex items-center justify-between gap-1 w-full px-2 py-1 text-[0.75rem] font-medium border border-outline/10 rounded-sm hover:border-[#FF8000]/50 transition-colors bg-white cursor-pointer group min-w-[100px]">
                               {lead.industry}
@@ -315,14 +350,14 @@ const SalesAllLeads: React.FC = () => {
                               </>
                             )}
                           </div>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('leadOwner') && <td className="px-6 py-0">
                           <span className="text-[0.8rem] text-on-surface font-medium">{lead.leadOwner}</span>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('productName') && <td className="px-6 py-0">
                           <span className="text-[0.8rem] font-semibold text-on-surface">{lead.productName}</span>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('contractStage') && <td className="px-6 py-0">
                           <div className="relative">
                             <div onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === `stage_${lead.id}` ? null : `stage_${lead.id}`); }} className="flex items-center justify-between gap-1 w-full px-2 py-1 text-[0.75rem] font-medium border border-outline/10 rounded-sm hover:border-[#FF8000]/50 transition-colors bg-white cursor-pointer group min-w-[120px]">
                               {lead.contractStage}
@@ -341,17 +376,17 @@ const SalesAllLeads: React.FC = () => {
                               </>
                             )}
                           </div>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('proposedARR') && <td className="px-6 py-0">
                           <span className="text-[0.8rem] text-emerald-600 font-bold">{lead.proposedARR}</span>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('contractARR') && <td className="px-6 py-0">
                           <span className="text-[0.8rem] text-emerald-600 font-bold">{lead.contractARR}</span>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('source') && <td className="px-6 py-0">
                           <span className="text-[0.75rem] text-on-surface-variant font-medium">{lead.source}</span>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('icp') && <td className="px-6 py-0">
                           <button 
                             onClick={(e) => {
                               e.stopPropagation();
@@ -361,8 +396,8 @@ const SalesAllLeads: React.FC = () => {
                           >
                             <div className={`w-3 h-3 bg-white rounded-full absolute top-0.5 transition-all ${lead.icp ? 'left-[18px]' : 'left-0.5'}`}></div>
                           </button>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('status') && <td className="px-6 py-0">
                           <div className="relative inline-block w-[110px]">
                             <div onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === `status_${lead.id}` ? null : `status_${lead.id}`); }} className={`flex items-center justify-between text-center px-2 py-1 rounded-sm text-[0.65rem] font-bold border cursor-pointer group transition-colors ${
                               lead.status === 'New' ? 'bg-blue-50 text-blue-700 border-blue-100 hover:bg-blue-100/50' :
@@ -385,8 +420,8 @@ const SalesAllLeads: React.FC = () => {
                               </>
                             )}
                           </div>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('label') && <td className="px-6 py-0">
                           <div className="relative inline-block min-w-[80px]">
                             <div onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === `label_${lead.id}` ? null : `label_${lead.id}`); }} className="flex items-center justify-between gap-1.5 w-full cursor-pointer group hover:bg-slate-50 px-1 py-0.5 rounded-sm transition-colors border border-transparent hover:border-outline/10">
                               <div className="flex items-center gap-1.5">
@@ -409,19 +444,19 @@ const SalesAllLeads: React.FC = () => {
                               </>
                             )}
                           </div>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('createdBy') && <td className="px-6 py-0">
                           <span className="text-[0.8rem] text-on-surface-variant/70">{lead.createdBy}</span>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('updatedBy') && <td className="px-6 py-0">
                           <span className="text-[0.8rem] text-on-surface-variant/70">{lead.updatedBy}</span>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('addedOn') && <td className="px-6 py-0">
                           <span className="text-[0.75rem] text-on-surface-variant/60 font-medium">{lead.addedOn}</span>
-                        </td>
-                        <td className="px-6 py-0">
+                        </td>}
+                        {isVisible('updatedAt') && <td className="px-6 py-0">
                           <span className="text-[0.75rem] text-on-surface-variant/60 font-medium">{lead.updatedAt}</span>
-                        </td>
+                        </td>}
 
                         {/* Clean Sticky Right Action Button */}
                         <td className="sticky right-0 w-0 p-0 overflow-visible z-30 pointer-events-none">
@@ -467,6 +502,16 @@ const SalesAllLeads: React.FC = () => {
           </div>
         </div>
       </main>
+
+      {/* Settings overlay component call */}
+      <ColumnSettingsOverlay 
+        isOpen={isOverlayOpen}
+        onClose={() => setIsOverlayOpen(false)}
+        columns={columns}
+        onToggle={handleToggle}
+        onReset={handleReset}
+        onSave={handleSave}
+      />
     </div>
   );
 };
