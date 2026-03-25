@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import SidebarItem from '../components/SidebarItem';
 import ColumnSettingsOverlay from '../components/sales_dashboard/ColumnSettingsOverlay';
+import ImportLeadsOverlay from '../components/sales_dashboard/ImportLeadsOverlay';
+import CreateLeadOverlay from '../components/sales_dashboard/CreateLeadOverlay';
 
 const SalesAllLeads: React.FC = () => {
   const [profileOpen, setProfileOpen] = useState(false);
@@ -8,6 +10,8 @@ const SalesAllLeads: React.FC = () => {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
+  const [showImportOpen, setShowImportOpen] = useState(false);
+  const [showAddLeadOpen, setShowAddLeadOpen] = useState(false);
   const [columns, setColumns] = useState([
     { id: '1', label: 'Company', key: 'company', visible: true },
     { id: '2', label: 'Contact Name', key: 'contactName', visible: true },
@@ -179,11 +183,17 @@ const SalesAllLeads: React.FC = () => {
               <p className="text-on-surface-variant text-[0.9rem] mt-0.5 font-body">Manage and track your entire sales pipeline in one place</p>
             </div>
             <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 px-3 py-1.5 border border-outline/10 bg-surface-container-low text-[0.75rem] font-bold text-on-surface-variant hover:bg-white hover:text-[#FF8000] transition-colors rounded-sm uppercase tracking-wider group shadow-sm">
+              <button 
+                onClick={() => setShowImportOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 border border-outline/10 bg-surface-container-low text-[0.75rem] font-bold text-on-surface-variant hover:bg-white hover:text-[#FF8000] transition-colors rounded-sm uppercase tracking-wider group shadow-sm"
+              >
                 <span className="material-symbols-outlined !text-[16px]">download</span>
                 Import Leads
               </button>
-              <button className="flex items-center gap-2 px-4 py-1.5 bg-[#FF8000] text-white rounded-sm text-[0.8rem] font-semibold hover:bg-[#FF8000]/90 transition-all group shadow-sm active:scale-95">
+              <button 
+                onClick={() => setShowAddLeadOpen(true)}
+                className="flex items-center gap-2 px-4 py-1.5 bg-[#FF8000] text-white rounded-sm text-[0.8rem] font-semibold hover:bg-[#FF8000]/90 transition-all group shadow-sm active:scale-95"
+              >
                 <span className="material-symbols-outlined !text-[18px]">add</span>
                 Lead
               </button>
@@ -512,6 +522,10 @@ const SalesAllLeads: React.FC = () => {
         onReset={handleReset}
         onSave={handleSave}
       />
+
+      {/* Slide-in Overlay component calls */}
+      <ImportLeadsOverlay isOpen={showImportOpen} onClose={() => setShowImportOpen(false)} />
+      <CreateLeadOverlay isOpen={showAddLeadOpen} onClose={() => setShowAddLeadOpen(false)} />
     </div>
   );
 };
