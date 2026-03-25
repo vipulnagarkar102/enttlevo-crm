@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Lexend', sans-serif;
+    zoom: 0.9;
+  }
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+  font-size: 20px;
+}
+
+.sidebar-item-active {
+  color: #FF8000;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-hover:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+}
+
+.dropdown-shadow {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.flyout-menu {
+  display: none;
+  position: absolute;
+  left: 100%;
+  top: 0;
+  width: 280px;
+  background: #1A171F;
+  border-radius: 0 4px 4px 0;
+  box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+  z-index: 50;
+  padding: 1rem 0;
+}
+
+.sidebar-item-container:focus-within .flyout-menu {
+  display: block;
+}
+
+.flyout-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  color: rgba(255,255,255,0.8);
+  font-size: 0.95rem; /* Increased from 0.85rem */
+  transition: all 0.2s;
+}
+
+.flyout-item:hover {
+  background: rgba(255,255,255,0.05);
+  color: #FF8000;
+}
+
+.flyout-header {
+  padding: 0.5rem 1.5rem 1rem;
+  color: white;
+  font-weight: 600;
+  font-size: 1.1rem; /* Increased from 1rem */
+}
+
+.flyout-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.1);
+  margin: 0.75rem 1.5rem;
+}
