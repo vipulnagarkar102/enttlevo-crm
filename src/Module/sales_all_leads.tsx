@@ -4,6 +4,7 @@ import ColumnSettingsOverlay from '../components/sales_dashboard/ColumnSettingsO
 import ImportLeadsOverlay from '../components/sales_dashboard/ImportLeadsOverlay';
 import CreateLeadOverlay from '../components/sales_dashboard/CreateLeadOverlay';
 import AdvancedFiltersOverlay from '../components/sales_dashboard/AdvancedFiltersOverlay';
+import DeleteConfirmationModal from '../components/sales_dashboard/DeleteConfirmationModal';
 
 const SalesAllLeads: React.FC = () => {
   const [profileOpen, setProfileOpen] = useState(false);
@@ -14,6 +15,18 @@ const SalesAllLeads: React.FC = () => {
   const [showImportOpen, setShowImportOpen] = useState(false);
   const [showAddLeadOpen, setShowAddLeadOpen] = useState(false);
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState<{isOpen: boolean, leadId: number | null, leadName: string | undefined}>({isOpen: false, leadId: null, leadName: undefined});
+  const [toastMessage, setToastMessage] = useState<{msg: string, type: 'success' | 'delete' | null}>({msg: '', type: null});
+
+  const confirmDelete = () => {
+    if (deleteModalOpen.leadId !== null) {
+      setLeadsData(leadsData.filter(l => l.id !== deleteModalOpen.leadId));
+      setToastMessage({msg: 'Lead successfully deleted', type: 'delete'});
+      setTimeout(() => setToastMessage({msg: '', type: null}), 3000);
+    }
+    setDeleteModalOpen({isOpen: false, leadId: null, leadName: undefined});
+  };
+
   const [columns, setColumns] = useState([
     { id: '1', label: 'Company', key: 'company', visible: true },
     { id: '2', label: 'Contact Name', key: 'contactName', visible: true },
@@ -476,7 +489,10 @@ const SalesAllLeads: React.FC = () => {
                         {/* Clean Sticky Right Action Button */}
                         <td className="sticky right-0 w-0 p-0 overflow-visible z-30 pointer-events-none">
                           <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto">
-                            <button className="flex items-center gap-2 px-4 py-1.5 bg-error text-white rounded-sm text-[0.8rem] font-semibold hover:bg-error/90 transition-all group shadow-sm active:scale-95 whitespace-nowrap">
+                            <button 
+                              onClick={() => setDeleteModalOpen({isOpen: true, leadId: lead.id, leadName: lead.company})}
+                              className="flex items-center gap-2 px-4 py-1.5 bg-error text-white rounded-sm text-[0.8rem] font-semibold hover:bg-error/90 transition-all group shadow-sm active:scale-95 whitespace-nowrap"
+                            >
                               <span className="material-symbols-outlined !text-[18px]">delete</span>
                               Delete
                             </button>
@@ -532,6 +548,23 @@ const SalesAllLeads: React.FC = () => {
       <ImportLeadsOverlay isOpen={showImportOpen} onClose={() => setShowImportOpen(false)} />
       <CreateLeadOverlay isOpen={showAddLeadOpen} onClose={() => setShowAddLeadOpen(false)} />
       <AdvancedFiltersOverlay isOpen={showAdvancedFilter} onClose={() => setShowAdvancedFilter(false)} />
+
+      <DeleteConfirmationModal
+        isOpen={deleteModalOpen.isOpen}
+        onClose={() => setDeleteModalOpen({isOpen: false, leadId: null, leadName: undefined})}
+        onConfirm={confirmDelete}
+        leadName={deleteModalOpen.leadName}
+      />
+
+      {/* Toast Notification */}
+      {toastMessage.type && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[300] bg-slate-800 text-white px-6 py-3 rounded-md shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-8 fade-in duration-300">
+          <span className={`material-symbols-outlined !text-[20px] ${toastMessage.type === 'delete' ? 'text-error' : 'text-green-400'}`}>
+            {toastMessage.type === 'delete' ? 'delete' : 'check_circle'}
+          </span>
+          <span className="text-[0.85rem] font-medium tracking-wide">{toastMessage.msg}</span>
+        </div>
+      )}
     </div>
   );
 };
