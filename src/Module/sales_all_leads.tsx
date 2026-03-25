@@ -3,6 +3,7 @@ import SidebarItem from '../components/SidebarItem';
 import ColumnSettingsOverlay from '../components/sales_dashboard/ColumnSettingsOverlay';
 import ImportLeadsOverlay from '../components/sales_dashboard/ImportLeadsOverlay';
 import CreateLeadOverlay from '../components/sales_dashboard/CreateLeadOverlay';
+import AdvancedFiltersOverlay from '../components/sales_dashboard/AdvancedFiltersOverlay';
 
 const SalesAllLeads: React.FC = () => {
   const [profileOpen, setProfileOpen] = useState(false);
@@ -12,6 +13,7 @@ const SalesAllLeads: React.FC = () => {
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const [showImportOpen, setShowImportOpen] = useState(false);
   const [showAddLeadOpen, setShowAddLeadOpen] = useState(false);
+  const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
   const [columns, setColumns] = useState([
     { id: '1', label: 'Company', key: 'company', visible: true },
     { id: '2', label: 'Contact Name', key: 'contactName', visible: true },
@@ -265,7 +267,10 @@ const SalesAllLeads: React.FC = () => {
                     className="pl-10 pr-4 py-1.5 bg-white border border-outline/10 rounded-sm text-[0.75rem] focus:outline-none focus:border-[#FF8000]/50 focus:ring-1 focus:ring-[#FF8000]/20 w-[240px] transition-all placeholder:text-on-surface-variant/30"
                   />
                 </div>
-                <button className="flex items-center gap-2 px-3 py-1.5 border border-outline/10 text-[0.75rem] font-bold text-on-surface-variant hover:bg-white hover:text-[#FF8000] transition-colors rounded-sm uppercase tracking-wider group">
+                <button 
+                  onClick={() => setShowAdvancedFilter(true)}
+                  className="flex items-center gap-2 px-3 py-1.5 border border-outline/10 text-[0.75rem] font-bold text-on-surface-variant hover:bg-white hover:text-[#FF8000] transition-colors rounded-sm uppercase tracking-wider group"
+                >
                   <span className="material-symbols-outlined !text-[16px]">filter_list</span>
                   Advanced Filters
                 </button>
@@ -526,6 +531,7 @@ const SalesAllLeads: React.FC = () => {
       {/* Slide-in Overlay component calls */}
       <ImportLeadsOverlay isOpen={showImportOpen} onClose={() => setShowImportOpen(false)} />
       <CreateLeadOverlay isOpen={showAddLeadOpen} onClose={() => setShowAddLeadOpen(false)} />
+      <AdvancedFiltersOverlay isOpen={showAdvancedFilter} onClose={() => setShowAdvancedFilter(false)} />
     </div>
   );
 };
