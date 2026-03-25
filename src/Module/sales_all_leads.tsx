@@ -5,6 +5,7 @@ import ImportLeadsOverlay from '../components/sales_dashboard/ImportLeadsOverlay
 import CreateLeadOverlay from '../components/sales_dashboard/CreateLeadOverlay';
 import AdvancedFiltersOverlay from '../components/sales_dashboard/AdvancedFiltersOverlay';
 import DeleteConfirmationModal from '../components/sales_dashboard/DeleteConfirmationModal';
+import LeadDetailsView from '../components/sales_dashboard/LeadDetailsView';
 
 const SalesAllLeads: React.FC = () => {
   const [profileOpen, setProfileOpen] = useState(false);
@@ -15,6 +16,7 @@ const SalesAllLeads: React.FC = () => {
   const [showImportOpen, setShowImportOpen] = useState(false);
   const [showAddLeadOpen, setShowAddLeadOpen] = useState(false);
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
+  const [selectedLeadId, setSelectedLeadId] = useState<number | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState<{isOpen: boolean, leadId: number | null, leadName: string | undefined}>({isOpen: false, leadId: null, leadName: undefined});
   const [toastMessage, setToastMessage] = useState<{msg: string, type: 'success' | 'delete' | null}>({msg: '', type: null});
 
@@ -189,9 +191,19 @@ const SalesAllLeads: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="ml-16 mt-10 p-8 min-h-screen">
-        <div className="max-w-[1400px] mx-auto space-y-6">
-          {/* Header Section */}
+      <main className="ml-16 mt-10 flex flex-col bg-surface min-h-screen">
+        {selectedLeadId !== null ? (
+          <div className="flex-1 w-full bg-surface flex flex-col">
+            <LeadDetailsView 
+              leadId={selectedLeadId}
+              leadName={leadsData.find(l => l.id === selectedLeadId)?.company}
+              industry={leadsData.find(l => l.id === selectedLeadId)?.industry}
+              onBack={() => setSelectedLeadId(null)}
+            />
+          </div>
+        ) : (
+          <div className="p-8 w-full space-y-6">
+            {/* Header Section */}
           <div className="flex justify-between items-end mb-2">
             <div className="text-left">
               <h1 className="text-[1.75rem] font-medium tracking-tight text-on-surface leading-tight font-headline uppercase">All Leads</h1>
@@ -335,7 +347,12 @@ const SalesAllLeads: React.FC = () => {
                             <div className="w-6 h-6 rounded-sm bg-blue-500/10 flex items-center justify-center text-blue-600 font-bold text-[0.65rem] uppercase">
                               {lead.company.charAt(0)}
                             </div>
-                            <span className="text-[0.85rem] font-semibold text-on-surface">{lead.company}</span>
+                            <span 
+                              className="text-[0.85rem] font-semibold text-[#006495] hover:underline cursor-pointer"
+                              onClick={() => setSelectedLeadId(lead.id)}
+                            >
+                              {lead.company}
+                            </span>
                           </div>
                         </td>}
                         {isVisible('contactName') && <td className="px-6 py-0">
@@ -532,6 +549,7 @@ const SalesAllLeads: React.FC = () => {
             </div>
           </div>
         </div>
+        )}
       </main>
 
       {/* Settings overlay component call */}
