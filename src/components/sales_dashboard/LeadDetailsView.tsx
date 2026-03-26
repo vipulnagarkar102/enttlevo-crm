@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import EmailTabContent from './EmailTabContent';
+import NotesTabContent from './NotesTabContent';
+import TasksTabContent from './TasksTabContent';
+import DocumentsTabContent from './DocumentsTabContent';
+import HistoryTabContent from './HistoryTabContent';
 
 const CustomDropdown = ({
   initialValue,
@@ -349,11 +353,15 @@ const LeadDetailsView: React.FC<LeadDetailsViewProps> = ({ leadId, leadName = 'R
             </div>
 
             {/* Tab Content */}
-            <div className={`flex-1 flex flex-col overflow-hidden relative ${activeTab !== 'Email' ? 'items-center justify-center p-8 bg-slate-50/30' : ''}`}>
+            <div className={`flex-1 flex flex-col overflow-hidden relative ${!['Email', 'Notes', 'Tasks', 'Documents', 'History'].includes(activeTab) ? 'items-center justify-center p-8 bg-slate-50/30' : ''}`}>
 
               {activeTab === 'Email' && <EmailTabContent />}
+              {activeTab === 'Notes' && <NotesTabContent />}
+              {activeTab === 'Tasks' && <TasksTabContent />}
+              {activeTab === 'Documents' && <DocumentsTabContent />}
+              {activeTab === 'History' && <HistoryTabContent />}
 
-              {activeTab !== 'Email' && (
+              {activeTab !== 'Email' && activeTab !== 'Notes' && activeTab !== 'Tasks' && activeTab !== 'Documents' && activeTab !== 'History' && (
                 <div className="flex flex-col items-center justify-center text-center opacity-50">
                   <span className="material-symbols-outlined !text-[48px] text-slate-400 mb-4">construction</span>
                   <h3 className="text-[1.1rem] font-bold text-on-surface mb-2">{activeTab} section under construction</h3>

@@ -216,7 +216,7 @@ const EmailTabContent = () => {
             <div 
               key={email.id} 
               onClick={() => handleViewEmail(email)}
-              className={`flex items-start gap-4 px-6 py-4 border-b border-slate-100 hover:bg-slate-50/50 transition-colors cursor-pointer group ${email.isSelected ? 'bg-[#FCFAEF]/40' : ''}`}
+              className={`flex items-start gap-4 px-6 py-4 border-b border-slate-100 hover:bg-[#FF8000]/[0.04] transition-colors cursor-pointer group ${email.isSelected ? 'bg-[#FCFAEF]/40' : ''}`}
             >
               {/* Checkbox */}
               <div 
