@@ -1,5 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import EmailTabContent from './EmailTabContent';
 
+const CustomDropdown = ({
+  initialValue,
+  options,
+  isEditing,
+  bgType = 'slate',
+  className = ''
+}: {
+  initialValue: string;
+  options: string[];
+  isEditing: boolean;
+  bgType?: 'slate' | 'white';
+  className?: string;
+}) => {
+  const [value, setValue] = useState(initialValue);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isEditing) setIsOpen(false);
+  }, [isEditing]);
+
+  const readOnlyClasses = bgType === 'slate'
+    ? "bg-slate-50 border-outline/20 text-slate-600"
+    : "bg-white border-outline/20 text-slate-400";
+
+  if (!isEditing) {
+    return (
+      <input
+        readOnly
+        value={value}
+        className={`w-full py-1.5 border rounded-sm text-[0.85rem] focus:outline-none transition-all ${readOnlyClasses} ${className}`}
+      />
+    );
+  }
+
+  return (
+    <div className="relative w-full">
+      <div
+        onClick={() => setIsOpen(!isOpen)}
+        className={`flex items-center gap-2 w-full py-1.5 border border-[#FF8000]/50 shadow-sm ring-1 ring-[#FF8000]/20 bg-white rounded-sm cursor-pointer transition-colors justify-between group ${className}`}
+      >
+        <span className="text-[0.85rem] text-slate-900 truncate">{value || 'Select...'}</span>
+        <span className="material-symbols-outlined !text-[16px] text-slate-400 group-hover:text-[#FF8000]">expand_more</span>
+      </div>
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-[100]" onClick={() => setIsOpen(false)} />
+          <div className="absolute top-full mt-1 left-0 w-full min-w-[120px] bg-white border border-outline/10 shadow-lg rounded-sm py-1 z-[110] animate-in fade-in slide-in-from-top-1 duration-200 max-h-48 overflow-y-auto">
+            {options.map((opt) => (
+              <div
+                key={opt}
+                onClick={() => {
+                  setValue(opt);
+                  setIsOpen(false);
+                }}
+                className="px-3 py-1.5 text-[0.8rem] font-medium text-slate-700 hover:bg-[#FF8000]/10 hover:text-[#FF8000] cursor-pointer transition-colors break-words"
+              >
+                {opt}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
 interface LeadDetailsViewProps {
   leadId: number | string;
   leadName?: string;
@@ -9,6 +75,9 @@ interface LeadDetailsViewProps {
 
 const LeadDetailsView: React.FC<LeadDetailsViewProps> = ({ leadId, leadName = 'Reliance', industry, onBack }) => {
   const [activeTab, setActiveTab] = useState('Email');
+  const [isEditing, setIsEditing] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
   const [openSections, setOpenSections] = useState({
     company: true,
     contact: true,
@@ -22,9 +91,9 @@ const LeadDetailsView: React.FC<LeadDetailsViewProps> = ({ leadId, leadName = 'R
   const tabs = ['Email', 'Notes', 'Tasks', 'Documents', 'History'];
 
   return (
-    <div className="flex flex-col bg-surface animate-in fade-in duration-300">
+    <div className="flex flex-col bg-surface flex-1 h-[calc(100vh-40px)] overflow-hidden animate-in fade-in duration-300">
       {/* Header */}
-      <div className="flex justify-between items-center bg-white px-8 py-5 border-b border-outline/10 shadow-sm flex-shrink-0">
+      <div className="flex justify-between items-center bg-white px-8 py-5 border-b border-outline/10 shadow-sm flex-shrink-0 fixed top-10 right-0 left-16 z-30">
         <div className="flex items-center gap-6">
           <button
             onClick={onBack}
@@ -46,26 +115,54 @@ const LeadDetailsView: React.FC<LeadDetailsViewProps> = ({ leadId, leadName = 'R
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-1.5 border border-outline/20 rounded-sm bg-white text-[0.8rem] font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm tracking-wider uppercase">
-            <span className="material-symbols-outlined !text-[16px]">edit</span>
-            Edit
-          </button>
-          <button className="flex items-center gap-2 px-4 py-1.5 bg-emerald-500 border border-emerald-600 text-white rounded-sm text-[0.8rem] font-bold hover:bg-emerald-600 transition-colors shadow-sm tracking-wider uppercase active:scale-95">
-            <span className="material-symbols-outlined !text-[16px]">send</span>
-            Send to Onboarding
-          </button>
-          <button className="flex items-center gap-2 px-4 py-1.5 bg-red-500 border border-red-600 text-white rounded-sm text-[0.8rem] font-bold hover:bg-red-600 transition-colors shadow-sm tracking-wider uppercase active:scale-95">
-            <span className="material-symbols-outlined !text-[16px]">delete</span>
-            Delete
-          </button>
+          {isEditing ? (
+            <>
+              <button
+                onClick={() => setIsEditing(false)}
+                className="flex items-center gap-2 px-4 py-1.5 border border-outline/20 rounded-sm bg-white text-[0.8rem] font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm tracking-wider uppercase active:scale-95"
+              >
+                <span className="material-symbols-outlined !text-[16px]">close</span>
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setIsEditing(false);
+                  setToastMessage('Lead details updated successfully!');
+                  setTimeout(() => setToastMessage(null), 3500);
+                }}
+                className="flex items-center gap-2 px-4 py-1.5 bg-[#FF8000] border border-[#FF8000] text-white rounded-sm text-[0.8rem] font-bold hover:bg-[#FF8000]/90 transition-colors shadow-sm tracking-wider uppercase active:scale-95"
+              >
+                <span className="material-symbols-outlined !text-[16px]">save</span>
+                Save
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => setIsEditing(true)}
+                className="flex items-center gap-2 px-4 py-1.5 border border-outline/20 rounded-sm bg-white text-[0.8rem] font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm tracking-wider uppercase"
+              >
+                <span className="material-symbols-outlined !text-[16px]">edit</span>
+                Edit
+              </button>
+              <button className="flex items-center gap-2 px-4 py-1.5 bg-emerald-500 border border-emerald-600 text-white rounded-sm text-[0.8rem] font-bold hover:bg-emerald-600 transition-colors shadow-sm tracking-wider uppercase active:scale-95">
+                <span className="material-symbols-outlined !text-[16px]">send</span>
+                Send to Onboarding
+              </button>
+              <button className="flex items-center gap-2 px-4 py-1.5 bg-red-500 border border-red-600 text-white rounded-sm text-[0.8rem] font-bold hover:bg-red-600 transition-colors shadow-sm tracking-wider uppercase active:scale-95">
+                <span className="material-symbols-outlined !text-[16px]">delete</span>
+                Delete
+              </button>
+            </>
+          )}
         </div>
       </div>
 
       {/* Main Layout */}
-      <div className="flex items-start gap-6 px-8 pt-8 pb-12">
+      <div className="flex items-start gap-6 px-8 pt-32 pb-0 flex-1 overflow-hidden">
 
         {/* Left Column - Accordions */}
-        <div className="w-[320px] flex-shrink-0 flex flex-col gap-4">
+        <div className="w-[320px] flex-shrink-0 flex flex-col gap-4 h-full overflow-y-auto pb-4 pr-1 scrollbar-hide">
 
           {/* Company Details Section */}
           <div className="bg-white border text-center border-outline/10 rounded-sm shadow-sm flex flex-col transition-all">
@@ -86,47 +183,47 @@ const LeadDetailsView: React.FC<LeadDetailsViewProps> = ({ leadId, leadName = 'R
               <div className="p-5 space-y-4 animate-in slide-in-from-top-2 fade-in duration-200">
                 <div className="flex flex-col gap-1 text-left">
                   <label className="text-[0.75rem] font-bold text-[#3E4E63]">Company Name</label>
-                  <input readOnly value={leadName} className="w-full px-3 py-1.5 border border-outline/20 rounded-sm text-[0.85rem] text-slate-600 bg-slate-50 focus:outline-none" />
+                  <input readOnly={!isEditing} defaultValue={leadName} className={`w-full px-3 py-1.5 border rounded-sm text-[0.85rem] focus:outline-none transition-all ${isEditing ? 'bg-white border-[#FF8000]/50 shadow-sm ring-1 ring-[#FF8000]/20 text-slate-900' : 'bg-slate-50 border-outline/20 text-slate-600'}`} />
                 </div>
                 <div className="flex flex-col gap-1 text-left">
                   <label className="text-[0.75rem] font-bold text-[#3E4E63]">Account Owner</label>
-                  <input readOnly value="Shrinath Rao" className="w-full px-3 py-1.5 border border-outline/20 rounded-sm text-[0.85rem] text-slate-600 bg-slate-50 focus:outline-none" />
+                  <input readOnly={!isEditing} defaultValue="Shrinath Rao" className={`w-full px-3 py-1.5 border rounded-sm text-[0.85rem] focus:outline-none transition-all ${isEditing ? 'bg-white border-[#FF8000]/50 shadow-sm ring-1 ring-[#FF8000]/20 text-slate-900' : 'bg-slate-50 border-outline/20 text-slate-600'}`} />
                 </div>
                 <div className="flex flex-col gap-1 text-left">
                   <label className="text-[0.75rem] font-bold text-[#3E4E63]">Contact Name</label>
-                  <input readOnly value="Tenali Rama" className="w-full px-3 py-1.5 border border-outline/20 rounded-sm text-[0.85rem] text-slate-600 bg-slate-50 focus:outline-none" />
+                  <input readOnly={!isEditing} defaultValue="Tenali Rama" className={`w-full px-3 py-1.5 border rounded-sm text-[0.85rem] focus:outline-none transition-all ${isEditing ? 'bg-white border-[#FF8000]/50 shadow-sm ring-1 ring-[#FF8000]/20 text-slate-900' : 'bg-slate-50 border-outline/20 text-slate-600'}`} />
                 </div>
                 <div className="flex flex-col gap-1 text-left">
                   <label className="text-[0.75rem] font-bold text-[#3E4E63]">Email</label>
-                  <input readOnly value="Datta1@McAfee" className="w-full px-3 py-1.5 border border-outline/20 rounded-sm text-[0.85rem] text-slate-600 bg-slate-50 focus:outline-none" />
+                  <input readOnly={!isEditing} defaultValue="Datta1@McAfee" className={`w-full px-3 py-1.5 border rounded-sm text-[0.85rem] focus:outline-none transition-all ${isEditing ? 'bg-white border-[#FF8000]/50 shadow-sm ring-1 ring-[#FF8000]/20 text-slate-900' : 'bg-slate-50 border-outline/20 text-slate-600'}`} />
                 </div>
                 <div className="flex flex-col gap-1 text-left">
                   <label className="text-[0.75rem] font-bold text-[#3E4E63]">Address</label>
-                  <textarea readOnly value="Main St 123, Tech Park" className="w-full px-3 py-1.5 border border-outline/20 rounded-sm text-[0.85rem] text-slate-600 bg-slate-50 focus:outline-none min-h-[60px] resize-none"></textarea>
+                  <textarea readOnly={!isEditing} defaultValue="Main St 123, Tech Park" className={`w-full px-3 py-1.5 border rounded-sm text-[0.85rem] focus:outline-none min-h-[60px] resize-none transition-all ${isEditing ? 'bg-white border-[#FF8000]/50 shadow-sm ring-1 ring-[#FF8000]/20 text-slate-900' : 'bg-slate-50 border-outline/20 text-slate-600'}`}></textarea>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
                   <div className="flex flex-col gap-1 text-left">
                     <label className="text-[0.75rem] font-bold text-[#3E4E63]">City</label>
-                    <input readOnly value="Pune" className="w-full px-2 py-1.5 border border-outline/20 rounded-sm text-[0.85rem] text-slate-600 bg-slate-50 focus:outline-none" />
+                    <CustomDropdown initialValue="Pune" options={['Pune', 'Mumbai', 'Bangalore', 'Delhi', 'Hyderabad', 'Chennai']} isEditing={isEditing} bgType="slate" className="px-2" />
                   </div>
                   <div className="flex flex-col gap-1 text-left">
                     <label className="text-[0.75rem] font-bold text-[#3E4E63]">State</label>
-                    <input readOnly value="MH" className="w-full px-2 py-1.5 border border-outline/20 rounded-sm text-[0.85rem] text-slate-600 bg-slate-50 focus:outline-none" />
+                    <CustomDropdown initialValue="MH" options={['MH', 'KA', 'DL', 'TS', 'TN', 'GJ', 'WB']} isEditing={isEditing} bgType="slate" className="px-2" />
                   </div>
                   <div className="flex flex-col gap-1 text-left">
                     <label className="text-[0.75rem] font-bold text-[#3E4E63]">Country</label>
-                    <input readOnly value="India" className="w-full px-2 py-1.5 border border-outline/20 rounded-sm text-[0.85rem] text-slate-600 bg-slate-50 focus:outline-none" />
+                    <CustomDropdown initialValue="India" options={['India', 'USA', 'UK', 'Australia', 'Canada', 'Singapore']} isEditing={isEditing} bgType="slate" className="px-2" />
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-1 text-left">
                   <label className="text-[0.75rem] font-bold text-[#3E4E63]">LinkedIn</label>
-                  <input readOnly value="Tenali Rama" className="w-full px-3 py-1.5 border border-outline/20 rounded-sm text-[0.85rem] text-[#006495] bg-slate-50 focus:outline-none" />
+                  <input readOnly={!isEditing} defaultValue="Tenali Rama" className={`w-full px-3 py-1.5 border rounded-sm text-[0.85rem] focus:outline-none transition-all ${isEditing ? 'bg-white border-[#FF8000]/50 shadow-sm ring-1 ring-[#FF8000]/20 text-[#006495]' : 'bg-slate-50 border-outline/20 text-[#006495]'}`} />
                 </div>
                 <div className="flex flex-col gap-1 text-left">
                   <label className="text-[0.75rem] font-bold text-[#3E4E63]">Website</label>
-                  <input readOnly value="www.reliance.com" className="w-full px-3 py-1.5 border border-outline/20 rounded-sm text-[0.85rem] text-[#006495] bg-slate-50 focus:outline-none" />
+                  <input readOnly={!isEditing} defaultValue="www.reliance.com" className={`w-full px-3 py-1.5 border rounded-sm text-[0.85rem] focus:outline-none transition-all ${isEditing ? 'bg-white border-[#FF8000]/50 shadow-sm ring-1 ring-[#FF8000]/20 text-[#006495]' : 'bg-slate-50 border-outline/20 text-[#006495]'}`} />
                 </div>
               </div>
             )}
@@ -173,43 +270,43 @@ const LeadDetailsView: React.FC<LeadDetailsViewProps> = ({ leadId, leadName = 'R
               <div className="p-5 grid grid-cols-2 gap-x-4 gap-y-4 animate-in slide-in-from-top-2 fade-in duration-200">
                 <div className="flex flex-col gap-1 text-left">
                   <label className="text-[0.75rem] font-bold text-[#3E4E63]">Contract Stage</label>
-                  <input readOnly value="Proposal" className="w-full px-3 py-1.5 border border-outline/20 rounded-sm text-[0.85rem] text-slate-400 bg-white focus:outline-none" />
+                  <CustomDropdown initialValue="Proposal" options={['Prospecting', 'Qualification', 'Proposal', 'Negotiation', 'Closed Won', 'Closed Lost']} isEditing={isEditing} bgType="white" className="px-3" />
                 </div>
                 <div className="flex flex-col gap-1 text-left">
                   <label className="text-[0.75rem] font-bold text-[#3E4E63]">Status</label>
-                  <input readOnly value="Not Qualified" className="w-full px-3 py-1.5 border border-outline/20 rounded-sm text-[0.85rem] text-slate-400 bg-white focus:outline-none" />
+                  <CustomDropdown initialValue="Not Qualified" options={['New', 'Qualified', 'Not Qualified', 'In Progress', 'On Hold', 'Archived']} isEditing={isEditing} bgType="white" className="px-3" />
                 </div>
 
                 <div className="flex flex-col gap-1 text-left">
                   <label className="text-[0.75rem] font-bold text-[#3E4E63]">Label</label>
-                  <input readOnly value="Cold" className="w-full px-3 py-1.5 border border-outline/20 rounded-sm text-[0.85rem] text-slate-400 bg-white focus:outline-none" />
+                  <CustomDropdown initialValue="Cold" options={['Hot', 'Warm', 'Cold']} isEditing={isEditing} bgType="white" className="px-3" />
                 </div>
                 <div className="flex flex-col gap-1 text-left">
                   <label className="text-[0.75rem] font-bold text-[#3E4E63]">Contract Type</label>
-                  <input readOnly value="Monthly" className="w-full px-3 py-1.5 border border-outline/20 rounded-sm text-[0.85rem] text-slate-400 bg-white focus:outline-none" />
+                  <CustomDropdown initialValue="Monthly" options={['Monthly', 'Quarterly', 'Semi-Annual', 'Annual', 'Multi-Year']} isEditing={isEditing} bgType="white" className="px-3" />
                 </div>
 
                 <div className="flex flex-col gap-1 text-left">
                   <label className="text-[0.75rem] font-bold text-[#3E4E63]">Proposed ARR</label>
-                  <input readOnly value="" className="w-full px-3 py-1.5 border border-outline/20 rounded-sm text-[0.85rem] text-slate-400 bg-white focus:outline-none" />
+                  <input readOnly={!isEditing} defaultValue="" className={`w-full px-3 py-1.5 border rounded-sm text-[0.85rem] focus:outline-none transition-all ${isEditing ? 'bg-white border-[#FF8000]/50 shadow-sm ring-1 ring-[#FF8000]/20 text-slate-800' : 'bg-white border-outline/20 text-slate-400'}`} />
                 </div>
                 <div className="flex flex-col gap-1 text-left">
                   <label className="text-[0.75rem] font-bold text-[#3E4E63]">Contract Value</label>
-                  <input readOnly value="" className="w-full px-3 py-1.5 border border-outline/20 rounded-sm text-[0.85rem] text-slate-400 bg-white focus:outline-none" />
+                  <input readOnly={!isEditing} defaultValue="" className={`w-full px-3 py-1.5 border rounded-sm text-[0.85rem] focus:outline-none transition-all ${isEditing ? 'bg-white border-[#FF8000]/50 shadow-sm ring-1 ring-[#FF8000]/20 text-slate-800' : 'bg-white border-outline/20 text-slate-400'}`} />
                 </div>
 
                 <div className="flex flex-col gap-1 text-left">
                   <label className="text-[0.75rem] font-bold text-[#3E4E63]">Money in Bank</label>
-                  <input readOnly value="" className="w-full px-3 py-1.5 border border-outline/20 rounded-sm text-[0.85rem] text-slate-400 bg-white focus:outline-none" />
+                  <input readOnly={!isEditing} defaultValue="" className={`w-full px-3 py-1.5 border rounded-sm text-[0.85rem] focus:outline-none transition-all ${isEditing ? 'bg-white border-[#FF8000]/50 shadow-sm ring-1 ring-[#FF8000]/20 text-slate-800' : 'bg-white border-outline/20 text-slate-400'}`} />
                 </div>
                 <div className="flex flex-col gap-1 text-left">
                   <label className="text-[0.75rem] font-bold text-[#3E4E63]">Duration (Years)</label>
-                  <input readOnly value="" className="w-full px-3 py-1.5 border border-outline/20 rounded-sm text-[0.85rem] text-slate-400 bg-white focus:outline-none" />
+                  <input readOnly={!isEditing} defaultValue="" className={`w-full px-3 py-1.5 border rounded-sm text-[0.85rem] focus:outline-none transition-all ${isEditing ? 'bg-white border-[#FF8000]/50 shadow-sm ring-1 ring-[#FF8000]/20 text-slate-800' : 'bg-white border-outline/20 text-slate-400'}`} />
                 </div>
 
                 <div className="flex flex-col gap-1 text-left col-span-2">
                   <label className="text-[0.75rem] font-bold text-[#3E4E63]">Timezone</label>
-                  <input readOnly value="IST" className="w-full px-3 py-1.5 border border-outline/20 rounded-sm text-[0.85rem] text-slate-400 bg-white focus:outline-none" />
+                  <CustomDropdown initialValue="IST" options={['IST', 'EST', 'CST', 'MST', 'PST', 'GMT', 'UTC']} isEditing={isEditing} bgType="white" className="px-3" />
                 </div>
               </div>
             )}
@@ -217,8 +314,8 @@ const LeadDetailsView: React.FC<LeadDetailsViewProps> = ({ leadId, leadName = 'R
         </div>
 
         {/* Right Column - Account Overview & Tabs */}
-        <div className="flex-1 flex flex-col gap-4">
-          <div className="bg-white border border-outline/10 rounded-sm shadow-sm flex flex-col min-h-[70vh]">
+        <div className="flex-1 flex flex-col gap-4 h-full overflow-y-auto pb-4 pr-1 scrollbar-hide">
+          <div className="bg-white border border-outline/10 rounded-sm shadow-sm flex flex-col flex-1 min-h-0">
             {/* Right Panel Header */}
             <div className="p-6 pb-2 border-b border-outline/10 flex flex-col gap-4">
               <div>
@@ -252,19 +349,9 @@ const LeadDetailsView: React.FC<LeadDetailsViewProps> = ({ leadId, leadName = 'R
             </div>
 
             {/* Tab Content */}
-            <div className="flex-1 flex items-center justify-center p-8 bg-slate-50/30">
+            <div className={`flex-1 flex flex-col overflow-hidden relative ${activeTab !== 'Email' ? 'items-center justify-center p-8 bg-slate-50/30' : ''}`}>
 
-              {activeTab === 'Email' && (
-                <div className="flex flex-col items-center justify-center text-center max-w-[400px]">
-                  <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4 border border-outline/10">
-                    <span className="material-symbols-outlined !text-[32px] text-slate-400">error</span>
-                  </div>
-                  <h3 className="text-[1.1rem] font-bold text-on-surface mb-2">Email not configured</h3>
-                  <p className="text-[0.9rem] text-on-surface-variant">
-                    Please ask <span className="font-bold text-slate-700">Shrinath Rao</span> to connect their Google account.
-                  </p>
-                </div>
-              )}
+              {activeTab === 'Email' && <EmailTabContent />}
 
               {activeTab !== 'Email' && (
                 <div className="flex flex-col items-center justify-center text-center opacity-50">
@@ -281,7 +368,7 @@ const LeadDetailsView: React.FC<LeadDetailsViewProps> = ({ leadId, leadName = 'R
         </div>
 
         {/* Rightmost Column - Insights & Champions */}
-        <div className="w-[320px] flex-shrink-0 flex flex-col gap-4">
+        <div className="w-[320px] flex-shrink-0 flex flex-col gap-4 h-full overflow-y-auto pb-4 pr-1 scrollbar-hide">
 
           {/* Champion Details */}
           <div className="bg-white border border-outline/10 rounded-sm shadow-sm flex flex-col transition-all">
@@ -375,6 +462,14 @@ const LeadDetailsView: React.FC<LeadDetailsViewProps> = ({ leadId, leadName = 'R
         </div>
 
       </div>
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[300] bg-slate-800 text-white px-6 py-3 rounded-md shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-8 fade-in duration-300">
+          <span className="material-symbols-outlined !text-[20px] text-green-400">check_circle</span>
+          <span className="text-[0.85rem] font-medium tracking-wide">{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 };
