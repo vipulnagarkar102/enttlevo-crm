@@ -17,8 +17,8 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ selectedDate, onSelect,
 
   return (
     <>
-      <div className="fixed inset-0 z-40" onClick={onClose} />
-      <div className="absolute top-12 left-0 z-50 bg-white border border-outline/10 shadow-2xl rounded-sm p-4 w-64 animate-in fade-in slide-in-from-top-2 duration-200">
+      <div className="fixed inset-0 z-[1000]" onClick={onClose} />
+      <div className="absolute top-full left-0 mt-2 z-[1001] bg-white border border-outline/10 shadow-2xl rounded-sm p-4 w-64 animate-in fade-in slide-in-from-top-2 duration-200">
         <div className="flex justify-between items-center mb-4">
           <button
             onClick={() => setViewDate(new Date(viewDate.setMonth(viewDate.getMonth() - 1)))}
