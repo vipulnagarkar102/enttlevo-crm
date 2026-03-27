@@ -16,9 +16,10 @@ const Sidebar: React.FC = () => {
           flyoutItems={[
             { name: 'Dashboard', to: '/', icon: 'insights' },
             { name: 'All Leads', to: '/leads', icon: 'table_rows' },
-            { name: 'All Deals', to: '/deals', icon: 'Handshake' }
+            { name: 'All Deals', to: '/deals', icon: 'Handshake' },
+            { name: 'Tasks', to: '/tasks', icon: 'task_alt' }
           ]}
-          active={window.location.pathname === '/' || window.location.pathname === '/leads' || window.location.pathname === '/deals'}
+          active={window.location.pathname === '/' || window.location.pathname === '/leads' || window.location.pathname === '/deals' || window.location.pathname === '/tasks'}
         />
         {/* <SidebarItem
           icon="analytics"
