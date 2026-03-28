@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import CreateEventOverlay from './CreateEventOverlay';
 
 interface Event {
   id: string;
@@ -13,15 +14,18 @@ interface Event {
 }
 
 const SalesScheduler: React.FC = () => {
-  const [currentDate, setCurrentDate] = useState(new Date(2023, 9, 5)); // October 5, 2023
+  const [currentDate, setCurrentDate] = useState(new Date()); // Defaults to current date
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [view, setView] = useState<'Month' | 'Week' | 'Day'>('Month');
+  const [isAddingEvent, setIsAddingEvent] = useState(false);
+  const [prefillDate, setPrefillDate] = useState<string | null>(null);
   
-  const [events] = useState<Event[]>([
+  const [events, setEvents] = useState<Event[]>([
     {
       id: '1',
       title: 'Quarterly Sales Review',
       category: 'Internal Meetings',
-      date: '2023-10-05',
+      date: new Date().toISOString().split('T')[0], // Set some events for today
       startTime: '09:00 AM',
       endTime: '10:30 AM',
       location: 'Room 4',
@@ -31,7 +35,7 @@ const SalesScheduler: React.FC = () => {
       id: '2',
       title: 'Client Discovery Call',
       category: 'Client Sales',
-      date: '2023-10-05',
+      date: new Date().toISOString().split('T')[0],
       startTime: '01:30 PM',
       endTime: '02:00 PM',
       location: 'Zoom',
@@ -41,7 +45,7 @@ const SalesScheduler: React.FC = () => {
       id: '3',
       title: 'Mobile Design Sync',
       category: 'Product Sync',
-      date: '2023-10-05',
+      date: new Date().toISOString().split('T')[0],
       startTime: '04:00 PM',
       endTime: '05:00 PM',
       location: 'Zoom',
@@ -51,7 +55,7 @@ const SalesScheduler: React.FC = () => {
       id: '4',
       title: 'Staff Meeting',
       category: 'Internal Meetings',
-      date: '2023-10-02',
+      date: '2026-03-02',
       startTime: '10:00 AM',
       endTime: '11:00 AM',
       color: '#3B82F6'
@@ -60,7 +64,7 @@ const SalesScheduler: React.FC = () => {
       id: '5',
       title: 'Product Review',
       category: 'Internal Meetings',
-      date: '2023-10-10',
+      date: '2026-03-10',
       startTime: '02:00 PM',
       endTime: '03:00 PM',
       color: '#3B82F6'
@@ -69,7 +73,7 @@ const SalesScheduler: React.FC = () => {
       id: '6',
       title: 'Web Analytics Review',
       category: 'Product Sync',
-      date: '2023-10-05',
+      date: new Date().toISOString().split('T')[0],
       startTime: '11:00 AM',
       endTime: '12:00 PM',
       color: '#10B981'
@@ -89,6 +93,23 @@ const SalesScheduler: React.FC = () => {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
+  const handleCreateEvent = (eventData: any) => {
+    const colorMap: Record<string, string> = {
+      'Internal Meetings': '#3B82F6',
+      'Client Sales': '#FF8000',
+      'Product Sync': '#10B981'
+    };
+    
+    const newEvent: Event = {
+      ...eventData,
+      color: colorMap[eventData.category as string] || '#3B82F6'
+    };
+    
+    setEvents(prev => [...prev, newEvent]);
+    setIsAddingEvent(false);
+    setPrefillDate(null);
+  };
+
   const days = Array.from({ length: daysInMonth(month, year) }, (_, i) => i + 1);
 
   // Prepend previous month's trailing days
@@ -104,7 +125,10 @@ const SalesScheduler: React.FC = () => {
       <aside className="w-[280px] border-r border-outline/5 flex flex-col bg-white shrink-0 h-full">
         <div className="flex-1 p-5 space-y-8 [ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {/* Action Button */}
-          <button className="w-full flex items-center justify-center gap-3 px-4 py-1.5 bg-[#FF8000] text-white rounded-sm text-[0.8rem] font-bold hover:bg-[#FF8000]/90 transition-all shadow-md active:scale-95 uppercase tracking-widest group">
+          <button 
+            onClick={() => { setPrefillDate(null); setIsAddingEvent(true); }}
+            className="w-full flex items-center justify-center gap-3 px-4 py-1.5 bg-[#FF8000] text-white rounded-sm text-[0.8rem] font-bold hover:bg-[#FF8000]/90 transition-all shadow-md active:scale-95 uppercase tracking-widest group"
+          >
             <span className="material-symbols-outlined !text-[18px] group-active:rotate-180 transition-transform">add</span>
             Create Event
           </button>
@@ -138,9 +162,9 @@ const SalesScheduler: React.FC = () => {
           </div>
 
           <div className="space-y-4 pt-4 border-t border-outline/5 flex-1 overflow-y-auto custom-scrollbar-mini pr-2">
-            <h3 className="text-[0.65rem] font-bold text-on-surface-variant/40 uppercase tracking-[0.15em] sticky top-0 bg-white z-10 py-2">Today's Agenda</h3>
+            <h3 className="text-[0.65rem] font-bold text-on-surface-variant/40 uppercase tracking-[0.15em] sticky top-0 bg-white z-10 py-2">Agenda for {new Date(selectedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</h3>
             <div className="space-y-4 relative">
-              {events.filter(e => e.date === '2023-10-05').sort((a, b) => a.startTime.localeCompare(b.startTime)).map(event => (
+              {events.filter(e => e.date === selectedDate).sort((a, b) => a.startTime.localeCompare(b.startTime)).map(event => (
                 <div key={event.id} className="bg-white border border-outline/10 rounded-sm shadow-sm flex items-stretch relative group overflow-hidden transition-all hover:border-[#FF8000]/20 hover:bg-[#FF8000]/[0.02] cursor-pointer">
                   {/* Colored Side Bar */}
                   <div className="w-1 shrink-0" style={{ backgroundColor: event.color }}></div>
@@ -216,13 +240,18 @@ const SalesScheduler: React.FC = () => {
             </div>
           ))}
           
-          {(view === 'Month' ? days : days.slice(4, 11)).map(d => {
-            const dateStr = `2023-10-${String(d).padStart(2, '0')}`;
+          {(view === 'Month' ? days : days.slice(new Date().getDate() - 3, new Date().getDate() + 4)).map(d => {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
             const dayEvents = events.filter(e => e.date === dateStr);
-            const isToday = d === 5;
+            const isToday = d === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear();
+            const isSelected = dateStr === selectedDate;
 
             return (
-              <div key={d} className={`bg-white p-1.5 border-r border-b border-outline/10 relative group/cell transition-all flex flex-col min-h-0 ${isToday ? 'bg-[#FF8000]/[0.02]' : 'hover:bg-[#FF8000]/[0.01]'}`}>
+              <div 
+                key={d} 
+                onClick={() => setSelectedDate(dateStr)}
+                className={`bg-white p-1.5 border-r border-b border-outline/10 relative group/cell transition-all flex flex-col min-h-0 cursor-pointer ${isSelected ? 'bg-[#FF8000]/[0.05]' : isToday ? 'bg-[#FF8000]/[0.02]' : 'hover:bg-[#FF8000]/[0.01]'}`}
+              >
                 <div className="flex justify-between items-start mb-0.5">
                   <span className={`text-[0.8rem] font-bold ${isToday ? 'text-[#FF8000] bg-orange-100/30 w-6 h-6 flex items-center justify-center rounded-full shadow-sm' : 'text-on-surface-variant/30 group-hover/cell:text-on-surface'}`}>{d}</span>
                 </div>
@@ -244,13 +273,23 @@ const SalesScheduler: React.FC = () => {
                   ))}
                 </div>
 
-                <button className="absolute bottom-1 right-1 w-5 h-5 rounded-sm bg-[#FF8000] text-white flex items-center justify-center opacity-0 group-hover/cell:opacity-100 transition-all shadow-md active:scale-90 z-20">
+                <button 
+                    onClick={() => { setPrefillDate(dateStr); setIsAddingEvent(true); }}
+                    className="absolute bottom-1 right-1 w-5 h-5 rounded-sm bg-[#FF8000] text-white flex items-center justify-center opacity-0 group-hover/cell:opacity-100 transition-all shadow-md active:scale-90 z-20"
+                >
                   <span className="material-symbols-outlined !text-[12px]">add</span>
                 </button>
               </div>
             );
           })}
         </div>
+        
+        <CreateEventOverlay 
+            isOpen={isAddingEvent}
+            onClose={() => { setIsAddingEvent(false); setPrefillDate(null); }}
+            onAddEvent={handleCreateEvent}
+            initialData={prefillDate ? { date: prefillDate } : { date: selectedDate }}
+        />
       </main>
     </div>
   );
