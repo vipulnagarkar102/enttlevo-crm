@@ -5,10 +5,11 @@ interface CreateEventOverlayProps {
   isOpen: boolean;
   onClose: () => void;
   onAddEvent: (event: any) => void;
+  onDeleteEvent?: (id: string) => void;
   initialData?: any;
 }
 
-const CreateEventOverlay: React.FC<CreateEventOverlayProps> = ({ isOpen, onClose, onAddEvent, initialData }) => {
+const CreateEventOverlay: React.FC<CreateEventOverlayProps> = ({ isOpen, onClose, onAddEvent, onDeleteEvent, initialData }) => {
   const [eventData, setEventData] = useState({
     title: '',
     category: 'Internal Meetings',
@@ -261,19 +262,31 @@ const CreateEventOverlay: React.FC<CreateEventOverlayProps> = ({ isOpen, onClose
         </div>
 
         {/* Footer Actions */}
-        <div className="p-6 border-t border-outline/5 flex justify-end gap-3 bg-white flex-shrink-0 z-[200]">
-          <button 
-            onClick={onClose}
-            className="flex items-center justify-center min-w-[100px] px-4 py-1.5 border border-slate-200 rounded-sm text-[0.8rem] font-bold text-slate-600 hover:bg-slate-50 transition-colors uppercase tracking-wider"
-          >
-            Cancel
-          </button>
-          <button 
-            onClick={handleSubmit}
-            className="flex items-center justify-center min-w-[124px] px-4 py-1.5 bg-[#FF8000] text-white rounded-sm text-[0.8rem] font-bold hover:bg-[#FF8000]/90 transition-all uppercase tracking-wider shadow-sm active:scale-95"
-          >
-            Save Event
-          </button>
+        <div className="p-6 border-t border-outline/5 flex justify-between items-center bg-white flex-shrink-0 z-[200]">
+          {initialData?.id ? (
+            <button 
+                onClick={() => onDeleteEvent?.(initialData.id)}
+                className="flex items-center gap-2 px-3 py-1.5 text-[0.75rem] font-bold text-red-500 hover:bg-red-50 rounded-sm transition-all uppercase tracking-wider"
+            >
+                <span className="material-symbols-outlined !text-[18px]">delete</span>
+                Delete Event
+            </button>
+          ) : <div />}
+
+          <div className="flex gap-3">
+            <button 
+                onClick={onClose}
+                className="flex items-center justify-center min-w-[100px] px-4 py-1.5 border border-slate-200 rounded-sm text-[0.8rem] font-bold text-slate-600 hover:bg-slate-50 transition-colors uppercase tracking-wider"
+            >
+                Cancel
+            </button>
+            <button 
+                onClick={handleSubmit}
+                className="flex items-center justify-center min-w-[124px] px-4 py-1.5 bg-[#FF8000] text-white rounded-sm text-[0.8rem] font-bold hover:bg-[#FF8000]/90 transition-all uppercase tracking-wider shadow-sm active:scale-95"
+            >
+                {initialData?.id ? 'Save Event' : 'Create Event'}
+            </button>
+          </div>
         </div>
       </div>
     </>

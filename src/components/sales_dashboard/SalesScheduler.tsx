@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import CreateEventOverlay from './CreateEventOverlay';
+import EventDetailView from './EventDetailView';
 
 interface Event {
   id: string;
@@ -18,7 +19,10 @@ const SalesScheduler: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [view, setView] = useState<'Month' | 'Week' | 'Day'>('Month');
   const [isAddingEvent, setIsAddingEvent] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<any>(null);
+  const [selectedViewEvent, setSelectedViewEvent] = useState<any>(null);
   const [prefillDate, setPrefillDate] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string, visible: boolean }>({ message: '', visible: false });
   
   const [events, setEvents] = useState<Event[]>([
     {
@@ -105,9 +109,29 @@ const SalesScheduler: React.FC = () => {
       color: colorMap[eventData.category as string] || '#3B82F6'
     };
     
-    setEvents(prev => [...prev, newEvent]);
+    if (eventData.id && events.some(e => e.id === eventData.id)) {
+        setEvents(prev => prev.map(e => e.id === eventData.id ? newEvent : e));
+        if (selectedViewEvent?.id === eventData.id) {
+           setSelectedViewEvent(newEvent);
+        }
+    } else {
+        setEvents(prev => [...prev, newEvent]);
+    }
+    
     setIsAddingEvent(false);
+    setEditingEvent(null);
     setPrefillDate(null);
+  };
+
+  const handleDeleteEvent = (id: string) => {
+    setEvents(prev => prev.filter(e => e.id !== id));
+    setIsAddingEvent(false);
+    setEditingEvent(null);
+    setSelectedViewEvent(null);
+    
+    // Show Toast
+    setToast({ message: 'Event deleted successfully', visible: true });
+    setTimeout(() => setToast(prev => ({ ...prev, visible: false })), 3000);
   };
 
   const days = Array.from({ length: daysInMonth(month, year) }, (_, i) => i + 1);
@@ -165,7 +189,11 @@ const SalesScheduler: React.FC = () => {
             <h3 className="text-[0.65rem] font-bold text-on-surface-variant/40 uppercase tracking-[0.15em] sticky top-0 bg-white z-10 py-2">Agenda for {new Date(selectedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</h3>
             <div className="space-y-4 relative">
               {events.filter(e => e.date === selectedDate).sort((a, b) => a.startTime.localeCompare(b.startTime)).map(event => (
-                <div key={event.id} className="bg-white border border-outline/10 rounded-sm shadow-sm flex items-stretch relative group overflow-hidden transition-all hover:border-[#FF8000]/20 hover:bg-[#FF8000]/[0.02] cursor-pointer">
+                <div 
+                    key={event.id} 
+                    onClick={(e) => { e.stopPropagation(); setSelectedViewEvent(event); }}
+                    className="bg-white border border-outline/10 rounded-sm shadow-sm flex items-stretch relative group overflow-hidden transition-all hover:border-[#FF8000]/20 hover:bg-[#FF8000]/[0.02] cursor-pointer"
+                >
                   {/* Colored Side Bar */}
                   <div className="w-1 shrink-0" style={{ backgroundColor: event.color }}></div>
                   
@@ -260,6 +288,7 @@ const SalesScheduler: React.FC = () => {
                   {dayEvents.map(event => (
                     <div 
                       key={event.id} 
+                      onClick={(e) => { e.stopPropagation(); setSelectedViewEvent(event); }}
                       className="px-1.5 py-0.5 rounded-[2px] text-[0.6rem] font-bold truncate transition-all cursor-pointer border-l-[2px] flex items-center gap-1.5 hover:brightness-95 hover:shadow-sm"
                       style={{ 
                         backgroundColor: `${event.color}15`,
@@ -286,10 +315,27 @@ const SalesScheduler: React.FC = () => {
         
         <CreateEventOverlay 
             isOpen={isAddingEvent}
-            onClose={() => { setIsAddingEvent(false); setPrefillDate(null); }}
+            onClose={() => { setIsAddingEvent(false); setPrefillDate(null); setEditingEvent(null); }}
             onAddEvent={handleCreateEvent}
-            initialData={prefillDate ? { date: prefillDate } : { date: selectedDate }}
+            onDeleteEvent={handleDeleteEvent}
+            initialData={editingEvent || (prefillDate ? { date: prefillDate } : { date: selectedDate })}
         />
+
+        <EventDetailView 
+            isOpen={!!selectedViewEvent}
+            onClose={() => setSelectedViewEvent(null)}
+            onEdit={(ev: any) => { setSelectedViewEvent(null); setEditingEvent(ev); setIsAddingEvent(true); }}
+            onDelete={handleDeleteEvent}
+            event={selectedViewEvent}
+        />
+
+        {/* Delete Toast Notification */}
+        {toast.visible && (
+            <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-md shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-300 z-[2000] border border-white/10">
+                <span className="material-symbols-outlined text-emerald-400 !text-[20px]">check_circle</span>
+                <span className="text-[0.85rem] font-bold tracking-tight">{toast.message}</span>
+            </div>
+        )}
       </main>
     </div>
   );
