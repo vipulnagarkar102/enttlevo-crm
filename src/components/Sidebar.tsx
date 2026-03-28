@@ -17,9 +17,10 @@ const Sidebar: React.FC = () => {
             { name: 'Dashboard', to: '/', icon: 'insights' },
             { name: 'All Leads', to: '/leads', icon: 'table_rows' },
             { name: 'All Deals', to: '/deals', icon: 'Handshake' },
-            { name: 'Tasks', to: '/tasks', icon: 'task_alt' }
+            { name: 'Tasks', to: '/tasks', icon: 'task_alt' },
+            { name: 'Scheduler', to: '/scheduler', icon: 'event' }
           ]}
-          active={window.location.pathname === '/' || window.location.pathname === '/leads' || window.location.pathname === '/deals' || window.location.pathname === '/tasks'}
+          active={window.location.pathname === '/' || window.location.pathname === '/leads' || window.location.pathname === '/deals' || window.location.pathname === '/tasks' || window.location.pathname === '/scheduler'}
         />
         {/* <SidebarItem
           icon="analytics"

@@ -4,6 +4,8 @@ import SalesAllLeads from './Module/sales_all_leads';
 import SalesDeals from './Module/sales_deals';
 import SalesTasks from './Module/sales_tasks';
 
+import SalesSchedulerPage from './Module/sales_schedular';
+
 const AppRouter = () => {
   return (
     <Router>
@@ -12,6 +14,7 @@ const AppRouter = () => {
         <Route path="/leads" element={<SalesAllLeads />} />
         <Route path="/deals" element={<SalesDeals />} />
         <Route path="/tasks" element={<SalesTasks />} />
+        <Route path="/scheduler" element={<SalesSchedulerPage />} />
       </Routes>
     </Router>
   );
