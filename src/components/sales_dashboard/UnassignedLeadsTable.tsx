@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import ColumnSettingsOverlay from './ColumnSettingsOverlay';
+import AssignLeadModal from './AssignLeadModal';
 
 const UnassignedLeadsTable: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [assignModalOpen, setAssignModalOpen] = useState<{isOpen: boolean, leadId: number | null}>({isOpen: false, leadId: null});
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const itemsPerPage = 5;
 
@@ -41,6 +44,13 @@ const UnassignedLeadsTable: React.FC = () => {
   const handleSave = () => {
     // Logic for saving (already handled by state update, but can persist to localStorage/backend here)
     setIsOverlayOpen(false);
+  };
+
+  const handleAssign = (assignee: string | 'me') => {
+    setAssignModalOpen({isOpen: false, leadId: null});
+    const msg = assignee === 'me' ? 'Lead successfully assigned to you!' : `Lead successfully assigned to ${assignee}!`;
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
   };
 
   const unassignedData = [
@@ -251,7 +261,10 @@ const UnassignedLeadsTable: React.FC = () => {
                   {/* Clean Sticky Right Action Button */}
                   <td className="sticky right-0 w-0 p-0 overflow-visible z-30 pointer-events-none">
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto">
-                      <button className="flex items-center gap-2 px-4 py-1.5 bg-[#FF8000] text-white rounded-sm text-[0.8rem] font-semibold hover:bg-[#FF8000]/90 transition-all group shadow-sm active:scale-95 whitespace-nowrap">
+                      <button 
+                        onClick={() => setAssignModalOpen({isOpen: true, leadId: lead.id})}
+                        className="flex items-center gap-2 px-4 py-1.5 bg-[#FF8000] text-white rounded-sm text-[0.8rem] font-semibold hover:bg-[#FF8000]/90 transition-all group shadow-sm active:scale-95 whitespace-nowrap"
+                      >
                          <span className="material-symbols-outlined !text-[18px]">person_add</span>
                          Assign Lead
                       </button>
@@ -304,6 +317,20 @@ const UnassignedLeadsTable: React.FC = () => {
         onReset={handleReset}
         onSave={handleSave}
       />
+
+      <AssignLeadModal 
+        isOpen={assignModalOpen.isOpen}
+        onClose={() => setAssignModalOpen({isOpen: false, leadId: null})}
+        onAssign={handleAssign}
+      />
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[300] bg-slate-800 text-white px-6 py-3 rounded-md shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-8 fade-in duration-300">
+          <span className="material-symbols-outlined text-green-400 !text-[20px]">check_circle</span>
+          <span className="text-[0.85rem] font-medium tracking-wide">{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 };
